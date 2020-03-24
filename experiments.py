@@ -95,10 +95,10 @@ class Experiment2:
 # TODO More experiments here..
 
 
-def run_experiment(experiment):
-    experiment = globals()[experiment]()
+def run_experiment(experiment_name):
+    experiment = globals()[experiment_name]()
     report = experiment.run()
-    fname = 'report' + experiment.__class__.__name__ + '.pickle'
+    fname = 'report%s.pickle' % experiment_name
     with open(fname, 'wb+') as f:
         pickle.dump(report, f)
 
@@ -113,6 +113,7 @@ def plot_hist(report):
     # with plt.style.context('seaborn-pastel'):
     with plt.style.context('Solarize_Light2'):
         for lengths, timings, comment in report:
+            # Path length histogram
             values, counts = np.unique(lengths, return_counts=True)
             plt.vlines(values, 0, counts, color='C1', lw=5)
             plt.ylim(0, max(counts) * 1.05)
@@ -125,6 +126,7 @@ def plot_hist(report):
             )
             plt.show()
 
+            # Calculation time histogram
             plt.hist(timings, bins=50)
             plt.xlabel('Seconds')
             plt.title(

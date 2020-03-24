@@ -1,4 +1,5 @@
 from enum import Enum
+import numpy as np
 import matplotlib.pyplot as plt
 import gym_minigrid  # noqa: F401
 import gym
@@ -109,17 +110,25 @@ def load_and_plot(fname):
 
 
 def plot_hist(report):
-    for lengths, timings, comment in report:
-        plt.hist(lengths, bins=50)
-        plt.title(
-            'Distribution of path lengths (number of actions until goal) '
-            '(params: %s)'
-            % str(comment)
-        )
-        plt.show()
-        plt.hist(timings, bins=50)
-        plt.title(
-            'Distribution of calculation times (params: %s)'
-            % str(comment)
-        )
-        plt.show()
+    # with plt.style.context('seaborn-pastel'):
+    with plt.style.context('Solarize_Light2'):
+        for lengths, timings, comment in report:
+            values, counts = np.unique(lengths, return_counts=True)
+            plt.vlines(values, 0, counts, color='C1', lw=5)
+            plt.ylim(0, max(counts) * 1.05)
+            plt.xlabel('Path length')
+            plt.xticks(values)
+            plt.title(
+                'Distribution of path lengths\n'
+                '(params: %s)'
+                % str(comment)
+            )
+            plt.show()
+
+            plt.hist(timings, bins=50)
+            plt.xlabel('Seconds')
+            plt.title(
+                'Distribution of calculation times\n(params: %s)'
+                % str(comment)
+            )
+            plt.show()

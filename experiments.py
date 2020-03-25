@@ -1,9 +1,12 @@
 from enum import Enum
-import numpy as np
-import matplotlib.pyplot as plt
-import gym_minigrid  # noqa: F401
-import gym
 import pickle
+import time
+
+import gym
+import gym_minigrid  # noqa: F401
+import matplotlib.pyplot as plt
+import numpy as np
+
 import mcts
 
 
@@ -98,7 +101,7 @@ class Experiment2:
 def run_experiment(experiment_name):
     experiment = globals()[experiment_name]()
     report = experiment.run()
-    fname = 'report%s.pickle' % experiment_name
+    fname = 'report%s%d.pickle' % (experiment_name, int(time.time()))
     with open(fname, 'wb+') as f:
         pickle.dump(report, f)
 

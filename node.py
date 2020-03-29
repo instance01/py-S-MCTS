@@ -20,7 +20,7 @@ class Node:
         pass  # TODO
 
     def __repr__(self):
-        return '[%s|-c:%d-|-r:%d-%s-|-%d-%d:%d-]' % (
+        return '[%s|-c:%d-|-r:%f-%s-|-%d-%d:%d-]' % (
             self._id,
             len(self.children),
             self.reward,
@@ -42,6 +42,9 @@ class Node:
         d = self.env.agent_dir
         p = p[0] * 10 + p[1]
         self._hash = int(.5 * (p + d) * (p + d + 1) + d)
+
+    def __eq__(self, other):
+        return self._hash == other._hash
 
     def __hash__(self):
         # Return a cached hash instead of recalculating each time.

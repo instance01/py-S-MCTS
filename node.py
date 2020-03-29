@@ -9,6 +9,7 @@ class Node:
         self.reward = 0
         self.parent = None
         self.children = []
+        self.action = None
 
     def __iter__(self):
         return iter(self.children)
@@ -44,7 +45,7 @@ class Node:
         self._hash = int(.5 * (p + d) * (p + d + 1) + d)
 
     def __eq__(self, other):
-        return self._hash == other._hash
+        return self._id == other._id
 
     def __hash__(self):
         # Return a cached hash instead of recalculating each time.

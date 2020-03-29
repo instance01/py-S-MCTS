@@ -1,6 +1,35 @@
 # py-S-MCTS
 
-Here's a few charts. Parameters consist of gamma and c.
+Here's a few charts of a simple experiment on grid world.
+
+## S-MCTS
+
+Parameters consist of gamma, c, action coverage, error tolerance and horizon.
+
+<p float="left">
+  <img src=".github/sm1.png" width="49%" />
+  <img src=".github/sm12.png" width="49%" /> 
+</p>
+<p float="left">
+  <img src=".github/sm2.png" width="49%" />
+  <img src=".github/sm22.png" width="49%" /> 
+</p>
+<p float="left">
+  <img src=".github/sm3.png" width="49%" />
+  <img src=".github/sm32.png" width="49%" /> 
+</p>
+<p float="left">
+  <img src=".github/sm4.png" width="49%" />
+  <img src=".github/sm42.png" width="49%" /> 
+</p>
+<p float="left">
+  <img src=".github/sm5.png" width="49%" />
+  <img src=".github/sm52.png" width="49%" /> 
+</p>
+
+## UCT
+
+Parameters consist of gamma and c.
 
 <p float="left">
   <img src=".github/01.png" width="49%" />

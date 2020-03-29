@@ -23,8 +23,8 @@ class MCTS:
 
     def _ucb(self, parent_node, child_node):
         mean_q = self.Q[child_node] / self.visits[child_node]
-        exploration = 2 * np.log(self.visits[parent_node]) / self.visits[child_node]
-        return mean_q + self.c * (exploration) ** .5
+        expl = 2 * np.log(self.visits[parent_node]) / self.visits[child_node]
+        return mean_q + self.c * expl ** .5
 
     def _gen_children_nodes(self, parent_node):
         for action in parent_node.env.actions:
@@ -44,7 +44,6 @@ class MCTS:
     def _expand(self, parent_node):
         """Pick the first action that was not visited yet.
         """
-        # TODO Support subsampling too.
         if len(parent_node) == 0:
             self._gen_children_nodes(parent_node)
 
@@ -69,7 +68,7 @@ class MCTS:
         return children[np.random.choice(len(children))]
 
     def select_expand(self):
-        """Select best node until find node that is not fully expanded.
+        """Select best node until finding a node that is not fully expanded.
         Expand it and return the expanded node (together with length of path
         for gamma).
         """
@@ -106,6 +105,7 @@ class MCTS:
         return q_val
 
     def backup(self, curr_node, q_val):
+        # TODO Missing the immediate reward of curr_node?
         while curr_node is not None:
             self.Q[curr_node] += q_val
             self.visits[curr_node] += 1

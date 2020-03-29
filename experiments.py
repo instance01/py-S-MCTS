@@ -8,6 +8,25 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import mcts
+import smcts
+
+
+class StatePenalty(gym.core.Wrapper):
+    """Adds a penalty for each state visited, effectively punishing long paths.
+    """
+    def __init__(self, env):
+        super(StatePenalty, self).__init__(env)
+
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
+
+        if reward == 0:
+            reward = -.01
+
+        return obs, reward, done, info
+
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
 
 
 def patch_hash_func_for_grid_world():
@@ -42,7 +61,10 @@ class Experiment1:
     def test1(self):
         """ TODO Comment
         """
-        params = [(.95, .4), (.95, .3), (.95, .2), (.97, .4), (.97, .3)]
+        params = [
+            (.95, .4), (.95, .3), (.95, .2), (.97, .4), (.97, .3),
+            (.8, .5), (.8, .4), (.8, .3), (.83, .5), (.83, .4), (.83, .3)
+        ]
         for param in params:
             path_lengths = []
             timings = []
@@ -95,13 +117,62 @@ class Experiment2:
         return self.report
 
 
+class Experiment3:
+    """Run SMCTS on empty grid world of size 5x5.
+    """
+    def __init__(self):
+        self.n_iter = 100
+        self.runs = 50
+        self.env = gym.make('MiniGrid-Empty-5x5-v0')
+        self.env.actions = self.Action
+
+        # TODO DOES NOT WORK YET.
+        # self.env = StatePenalty(self.env)
+
+        patch_hash_func_for_grid_world()
+
+        self.report = []
+
+    class Action(Enum):
+        left = 0
+        right = 1
+        forward = 2
+
+    def test1(self):
+        """ TODO Comment
+        """
+        # Parameters: gamma, c, action coverage, err tolerance, horizon
+        params = [
+            # (.8, .5, .9, .1, 4),
+            # (.8, .5, .8, .1, 4),
+            # (.8, .5, .7, .1, 4),
+            # (.8, .5, .9, .2, 4)
+            (.8, .5, .99, .02, 4),
+            (.8, .5, .985, .025, 4),
+            (.8, .5, .98, .03, 4)
+        ]
+        for param in params:
+            path_lengths = []
+            timings = []
+            for _ in range(self.runs):
+                smcts_obj = smcts.SMCTS(self.env, *param)
+                path, timing = smcts_obj.run(self.n_iter)
+                path_lengths.append(len(path))
+                timings.append(timing)
+            self.report.append((path_lengths, timings, param))
+
+    def run(self):
+        self.test1()
+        return self.report
+
+
 # TODO More experiments here..
 
 
 def run_experiment(experiment_name):
     experiment = globals()[experiment_name]()
     report = experiment.run()
-    fname = 'report%s%d.pickle' % (experiment_name, int(time.time()))
+    fname = 'report%s_%d.pickle' % (experiment_name, int(time.time()))
     with open(fname, 'wb+') as f:
         pickle.dump(report, f)
 

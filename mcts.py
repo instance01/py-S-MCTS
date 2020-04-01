@@ -38,7 +38,7 @@ class MCTS:
             node.parent = parent_node
             node.calc_hash()
             parent_node.children.append(node)
-            self.Q[node] = 0
+            self.Q[node] = 0.
             self.visits[node] = 0
 
     def _expand(self, parent_node):
@@ -72,21 +72,21 @@ class MCTS:
         Expand it and return the expanded node (together with length of path
         for gamma).
         """
-        path = []
+        path_len = 0
 
         curr_node = self.root_node
         while True:
             if curr_node.is_terminal:
                 break
             if curr_node.is_fully_expanded:
-                i, curr_node = self._get_best_node(curr_node)
-                path.append(i)
+                _, curr_node = self._get_best_node(curr_node)
+                path_len += 1
             else:
-                i, node = self._expand(curr_node)
+                _, node = self._expand(curr_node)
                 if node is not None:
-                    path.append(i)
-                    return node, len(path)
-        return curr_node, len(path)
+                    path_len += 1
+                    return node, path_len
+        return curr_node, path_len
 
     def simulate(self, curr_node, depth=1):
         if curr_node.is_terminal:
@@ -104,9 +104,11 @@ class MCTS:
                 break
         return q_val
 
-    def backup(self, curr_node, q_val):
-        # TODO Missing the immediate reward of curr_node?
+    def backup(self, curr_node, q_val, total_path_len):
         while curr_node is not None:
+            total_path_len -= 1
+            discount = self.gamma ** total_path_len
+            q_val += curr_node.reward * discount
             self.Q[curr_node] += q_val
             self.visits[curr_node] += 1
             curr_node = curr_node.parent
@@ -116,10 +118,10 @@ class MCTS:
         start_time = time.time()
         total_depth = 0
         for j in range(max_actions):
-            for _ in range(n_iter):
+            for i in range(n_iter):
                 node, path_len = self.select_expand()
                 q_val = self.simulate(node, path_len + total_depth)
-                self.backup(node, q_val)
+                self.backup(node, q_val, path_len + total_depth)
             total_depth += 1
 
             curr_node = self.root_node

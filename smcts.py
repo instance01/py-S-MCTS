@@ -159,7 +159,8 @@ class SMCTS(MCTS):
         while curr_node is not None:
             total_path_len -= len(curr_node.actions)
             discount = self.gamma ** total_path_len
-            self.Q[curr_node] += curr_node.reward * discount
+            q_val += curr_node.reward * discount
+            self.Q[curr_node] += q_val
             self.visits[curr_node] += 1
             curr_node = curr_node.parent
 

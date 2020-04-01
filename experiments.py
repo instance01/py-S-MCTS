@@ -9,6 +9,7 @@ import numpy as np
 
 import mcts
 import smcts
+import gradient_mcts
 
 
 class StatePenalty(gym.core.Wrapper):
@@ -44,8 +45,8 @@ class Experiment1:
     """Run MCTS on empty grid world of size 5x5 (effectively 3x3 due to walls).
     """
     def __init__(self):
-        self.n_iter = 1000
-        self.runs = 1
+        self.n_iter = 400
+        self.runs = 100
         self.env = gym.make('MiniGrid-Empty-5x5-v0')
         self.env.actions = self.Action
 
@@ -63,9 +64,11 @@ class Experiment1:
         """
         params = [
             (.95, .4), (.95, .3), (.95, .2), (.97, .4), (.97, .3),
-            (.8, .5), (.8, .4), (.8, .3), (.83, .5), (.83, .4), (.83, .3)
+            (.8, .5), (.8, .4), (.8, .3), (.83, .5), (.83, .4), (.83, .3),
+            (.9, .5)
         ]
         for param in params:
+            print('running', param)
             path_lengths = []
             timings = []
             for _ in range(self.runs):
@@ -122,7 +125,7 @@ class Experiment3:
     """
     def __init__(self):
         self.n_iter = 100
-        self.runs = 50
+        self.runs = 20
         self.env = gym.make('MiniGrid-Empty-5x5-v0')
         self.env.actions = self.Action
 
@@ -143,13 +146,11 @@ class Experiment3:
         """
         # Parameters: gamma, c, action coverage, err tolerance, horizon
         params = [
-            # (.8, .5, .9, .1, 4),
-            # (.8, .5, .8, .1, 4),
-            # (.8, .5, .7, .1, 4),
-            # (.8, .5, .9, .2, 4)
-            (.8, .5, .99, .02, 4),
+            (.8, .5, .99, .01, 4),
             (.8, .5, .985, .025, 4),
-            (.8, .5, .98, .03, 4)
+            (.8, .5, .98, .03, 4),
+            (.8, .5, .95, .05, 4),
+            (.8, .5, .9, .1, 4)
         ]
         for param in params:
             path_lengths = []
@@ -157,6 +158,94 @@ class Experiment3:
             for _ in range(self.runs):
                 smcts_obj = smcts.SMCTS(self.env, *param)
                 path, timing = smcts_obj.run(self.n_iter)
+                path_lengths.append(len(path))
+                timings.append(timing)
+            self.report.append((path_lengths, timings, param))
+
+    def run(self):
+        self.test1()
+        return self.report
+
+
+class Experiment5:
+    """Run Gradient MCTS on empty grid world of size 5x5.
+    """
+    def __init__(self):
+        self.n_iter = 100
+        self.runs = 1
+        self.env = gym.make('MiniGrid-Empty-5x5-v0')
+        self.env.actions = self.Action
+
+        # TODO DOES NOT WORK YET.
+        # self.env = StatePenalty(self.env)
+
+        patch_hash_func_for_grid_world()
+
+        self.report = []
+
+    class Action(Enum):
+        left = 0
+        right = 1
+        forward = 2
+
+    def test1(self):
+        """ TODO Comment
+        """
+        # Parameters: gamma, c, alpha
+        params = [
+            (.9, .4, .1)
+        ]
+        for param in params:
+            path_lengths = []
+            timings = []
+            for _ in range(self.runs):
+                mcts_obj = gradient_mcts.GradientMCTS(self.env, *param)
+                path, timing = mcts_obj.run(self.n_iter)
+                path_lengths.append(len(path))
+                timings.append(timing)
+            self.report.append((path_lengths, timings, param))
+
+    def run(self):
+        self.test1()
+        return self.report
+
+
+class Experiment6:
+    """Run Gradient MCTS on empty grid world of size 8x8.
+    """
+    def __init__(self):
+        self.n_iter = 1000
+        self.runs = 1
+        self.env = gym.make('MiniGrid-Empty-8x8-v0')
+        self.env.actions = self.Action
+
+        # TODO DOES NOT WORK YET.
+        # self.env = StatePenalty(self.env)
+
+        patch_hash_func_for_grid_world()
+
+        self.report = []
+
+    class Action(Enum):
+        left = 0
+        right = 1
+        forward = 2
+
+    def test1(self):
+        """ TODO Comment
+        """
+        # Parameters: gamma, c, alpha
+        params = [
+            (.99, .1, .1),
+            (.995, .05, .1),
+            (.99, .25, .02)
+        ]
+        for param in params:
+            path_lengths = []
+            timings = []
+            for _ in range(self.runs):
+                mcts_obj = gradient_mcts.GradientMCTS(self.env, *param)
+                path, timing = mcts_obj.run(self.n_iter)
                 path_lengths.append(len(path))
                 timings.append(timing)
             self.report.append((path_lengths, timings, param))
@@ -175,6 +264,7 @@ def run_experiment(experiment_name):
     fname = 'report%s_%d.pickle' % (experiment_name, int(time.time()))
     with open(fname, 'wb+') as f:
         pickle.dump(report, f)
+    return fname
 
 
 def load_and_plot(fname):

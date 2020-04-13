@@ -1,5 +1,9 @@
 # py-S-MCTS
 
+What is GRAB learning ?! It remains a mystery..
+
+<img src=".github/output.gif" width="99%" />
+
 Here's a few charts of a simple experiment on grid world.
 
 ## S-MCTS

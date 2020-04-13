@@ -13,7 +13,7 @@ class MCTS:
         self.env = copy.copy(env)
 
         self.root_node = Node()
-        self.root_node.env = copy.copy(env)
+        self.root_node.env = copy.deepcopy(env)
         self.root_node.calc_hash()
         self.Q[self.root_node] = 0
         self.visits[self.root_node] = 0
